@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: API Gateway for the whole stack
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: RootApiGateway
+    Description: API Gateway for the whole stack with a function that return the docs
+    Author: martimfj
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['api-gateway']
+    HomePageUrl: https://github.com/user1/my-app-project
+    SemanticVersion: 0.0.1
+    SourceCodeUrl: https://github.com/user1/my-app-project
+
+
+Resources:
+  RootApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: Root API
+      StageName: api
+
+  ApiDocs:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: function/
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      Events:
+        GetDocs:
+          Type: Api
+          Properties:
+            Method: get
+            Path: /docs
+            RestApiId: !Ref RootApi
+
+Outputs:
+  RootApiURL:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://${RootApi}.execute-api.${AWS::Region}.amazonaws.com/api/docs
